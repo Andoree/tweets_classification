@@ -10,9 +10,9 @@ METRICS = {"Precision": precision_score, "Recall": recall_score,
 
 
 def main():
-    true_labels_path = r"corpora/corpus_ruen_normalized/test.tsv"
-    predicted_labels_path = r"test_labels/bilingual_pretrain_ruen/labels_pretrain_ruen_5.tsv"
-    output_dir = r"test_labels/results/bilingual_pretrain_ruen/"
+    true_labels_path = r"../corpora/corpus_ruen_normalized/test.tsv"
+    predicted_labels_path = r"../test_labels/labels_pretrain_full_eng_full_ru_ruen_norm.tsv"
+    output_dir = r"../test_labels/results/pretrain_full_eng_full_ru_ruen_norm/"
     output_fname = r"results.tsv"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)

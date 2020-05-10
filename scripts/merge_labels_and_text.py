@@ -5,10 +5,10 @@ import pandas as pd
 
 
 def main():
-    test_labels_path = r"bert_2019_track_1/test/labels.txt"
-    test_texts_path = r"bert_2019_track_1/test/text.txt"
-    train_labels_path = r"bert_2019_track_1/train/labels.txt"
-    train_texts_path = r"bert_2019_track_1/train/text.txt"
+    test_labels_path = r"not_split_all_eng_tweets/test/labels.txt"
+    test_texts_path = r"not_split_all_eng_tweets/test/text.txt"
+    train_labels_path = r"not_split_all_eng_tweets/train/labels.txt"
+    train_texts_path = r"not_split_all_eng_tweets/train/text.txt"
     result_dir = "corpora/corpus_full_eng/"
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
