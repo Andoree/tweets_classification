@@ -10,10 +10,15 @@ METRICS = {"Precision": precision_score, "Recall": recall_score,
 
 
 def main():
-    true_labels_path = r"../corpora/corpus_ruen_normalized/test.tsv"
-    predicted_labels_path = r"../test_labels/labels_pretrain_full_eng_full_ru_ruen_norm.tsv"
-    output_dir = r"../test_labels/results/pretrain_full_eng_full_ru_ruen_norm/"
-    output_fname = r"results.tsv"
+    # true_labels_path = r"../new_corpora/corpus_ruen_normalized/test.tsv"
+    # predicted_labels_path = r"../test_labels/new_labels/pretrain_full_eng_full_ru_ruen_norm_new.tsv"
+    # output_dir = r"../test_labels/results/new"
+    true_labels_path = r"../new_corpora/corpus_en_full/test.tsv"
+    predicted_labels_path = r"../test_labels/new/labels_en_full_ep3.tsv"
+    output_dir = r"../test_labels/results/test_en_full_ep3"
+    output_fname = r"labels_en_full_ep3.csv"
+    mismatch_df_path = r"../test_labels/results/test_en_full_ep5.tsv"
+    # output_fname = r"results_pretrain_full_eng_full_ru_ruen_norm_new.tsv"
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     output_path = os.path.join(output_dir, output_fname)
@@ -91,7 +96,8 @@ def main():
     mismatch_df["pred_y"] = predicted_labels_df
     mismatch_df = mismatch_df[mismatch_df["pred_y"] != mismatch_df['class']]
     print(mismatch_df)
-    mismatch_df.to_csv("MISMATCH_DF.tsv", sep='\t')
+
+    mismatch_df.to_csv(mismatch_df_path, sep='\t')
 
 if __name__ == '__main__':
     main()
