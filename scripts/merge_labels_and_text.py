@@ -10,8 +10,8 @@ def main():
     # test_texts_path = r"../corpora/not_split_all_eng_tweets/test/text.txt"
     train_labels_path = r"../corpora/not_split_all_eng_tweets/train/labels.txt"
     train_texts_path = r"../corpora/not_split_all_eng_tweets/train/text.txt"
-    result_dir = "../new_corpora/corpus_en_full/"
-    negative_proportion = -1
+    result_dir = "../new_corpora/corpus_en_ones/"
+    negative_proportion = 0
     if not os.path.exists(result_dir):
         os.makedirs(result_dir)
 
@@ -30,6 +30,10 @@ def main():
             train_texts.append(line.strip())
     train_texts = numpy.array(train_texts)
     train_labels_df['tweet'] = train_texts
+    train_labels_df.drop_duplicates(inplace=True)
+    duplicate_tweets_mask = train_labels_df.duplicated(subset='tweet', keep=False)
+    train_labels_df = train_labels_df[~duplicate_tweets_mask]
+
     train_df, test_df, _, _ = \
         train_test_split(train_labels_df, train_labels_df, test_size=0.2, random_state=42)
     train_df, dev_df, _, _ = \
@@ -40,9 +44,7 @@ def main():
         num_positive_examples = train_positive_class_df.shape[0]
         num_negative_examples = num_positive_examples * negative_proportion
         train_negative_class_df = train_negative_class_df.sample(num_negative_examples, )
-        print(train_positive_class_df)
         normalized_train_df = pd.concat([train_positive_class_df, train_negative_class_df]).sample(frac=1)
-        print(normalized_train_df)
     else:
         normalized_train_df = train_df.sample(frac=1)
 
@@ -56,9 +58,9 @@ def main():
     output_train_path = os.path.join(result_dir, "train.tsv")
     output_dev_path = os.path.join(result_dir, "dev.tsv")
     output_test_path = os.path.join(result_dir, "test.tsv")
-    normalized_train_df.to_csv(output_train_path, sep='\t', encoding="utf-8", index=False, header=None)
-    dev_df.to_csv(output_dev_path, sep='\t', encoding="utf-8", index=False, header=None)
-    test_df.to_csv(output_test_path, sep='\t', encoding="utf-8", index=False, )
+    normalized_train_df.to_csv(output_train_path, sep='\t', encoding="utf-8", index=False, header=None, quoting=3, quotechar='')
+    dev_df.to_csv(output_dev_path, sep='\t', encoding="utf-8", index=False, header=None, quoting=3, quotechar='')
+    test_df.to_csv(output_test_path, sep='\t', encoding="utf-8", index=False, quoting=3, quotechar='')
     # print(normalized_train_df)
 
 
