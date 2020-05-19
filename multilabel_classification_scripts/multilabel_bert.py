@@ -12,7 +12,6 @@ import tokenization
 from bert_preprocessing import create_examples, file_based_convert_examples_to_features, \
     convert_examples_to_features
 
-NUM_LABELS = 5
 
 def file_based_input_fn_builder(input_file, seq_length, is_training,
                                 drop_remainder):
@@ -219,7 +218,7 @@ def model_fn_builder(bert_config, num_labels, init_checkpoint, learning_rate,
     return model_fn
 
 
-def input_fn_builder(features, seq_length, is_training, drop_remainder):
+def input_fn_builder(features, seq_length, is_training, drop_remainder, num_labels):
     """Creates an `input_fn` closure to be passed to TPUEstimator."""
 
     all_input_ids = []
@@ -258,7 +257,7 @@ def input_fn_builder(features, seq_length, is_training, drop_remainder):
                     shape=[num_examples, seq_length],
                     dtype=tf.int32),
             "label_ids":
-                tf.constant(all_label_ids, shape=[num_examples, NUM_LABELS], dtype=tf.int32),
+                tf.constant(all_label_ids, shape=[num_examples, num_labels], dtype=tf.int32),
         })
 
         if is_training:
@@ -272,7 +271,7 @@ def input_fn_builder(features, seq_length, is_training, drop_remainder):
 
 
 def train_and_evaluate(train_examples, eval_examples, max_seq_length, estimator, tokenizer, batch_size, eval_steps,
-                       num_train_steps, output_dir):
+                       num_train_steps, output_dir, num_labels):
     train_path = os.path.join(output_dir, "train.tf_record")
     if not os.path.exists(train_path):
         open(train_path, 'w').close()
@@ -330,13 +329,13 @@ def train_and_evaluate(train_examples, eval_examples, max_seq_length, estimator,
             writer.write("%s = %s\n" % (key, str(result[key])))
 
 
-def create_output(predictions):
+def create_output(predictions, num_labels):
     probabilities = []
     for (i, prediction) in enumerate(predictions):
         preds = prediction["probabilities"]
         probabilities.append(preds)
     dff = pd.DataFrame(probabilities)
-    result_columns = [f"p_label_{label_id}" for label_id in range(1, NUM_LABELS + 1)]
+    result_columns = [f"p_label_{label_id}" for label_id in range(1, num_labels + 1)]
     dff.columns = result_columns
 
     return dff
@@ -350,9 +349,9 @@ def get_estimator(model_fn, run_config, batch_size):
     return estimator
 
 
-def predict(test_df, estimator, tokenizer, max_seq_length):
+def predict(test_df, estimator, tokenizer, max_seq_length, num_labels):
     test_df = test_df.reset_index(drop=True)
-    predict_examples = create_examples(test_df, False, NUM_LABELS)
+    predict_examples = create_examples(test_df, False, num_labels)
 
     test_features = convert_examples_to_features(predict_examples, max_seq_length, tokenizer)
 
@@ -360,8 +359,8 @@ def predict(test_df, estimator, tokenizer, max_seq_length):
     current_time = datetime.now()
 
     predict_input_fn = input_fn_builder(features=test_features, seq_length=max_seq_length, is_training=False,
-                                        drop_remainder=False)
+                                        drop_remainder=False, num_labels=num_labels)
     predictions = estimator.predict(predict_input_fn)
     print("Prediction took time ", datetime.now() - current_time)
-    output_df = create_output(predictions)
+    output_df = create_output(predictions, num_labels=num_labels)
     return output_df
