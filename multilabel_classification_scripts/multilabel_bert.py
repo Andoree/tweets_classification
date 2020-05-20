@@ -14,14 +14,14 @@ from bert_preprocessing import create_examples, file_based_convert_examples_to_f
 
 
 def file_based_input_fn_builder(input_file, seq_length, is_training,
-                                drop_remainder):
+                                drop_remainder, num_labels):
     """Creates an `input_fn` closure to be passed to TPUEstimator."""
 
     name_to_features = {
         "input_ids": tf.FixedLenFeature([seq_length], tf.int64),
         "input_mask": tf.FixedLenFeature([seq_length], tf.int64),
         "segment_ids": tf.FixedLenFeature([seq_length], tf.int64),
-        "label_ids": tf.FixedLenFeature([5], tf.int64),
+        "label_ids": tf.FixedLenFeature([num_labels], tf.int64),
         "is_real_example": tf.FixedLenFeature([], tf.int64),
     }
 
@@ -292,7 +292,8 @@ def train_and_evaluate(train_examples, eval_examples, max_seq_length, estimator,
         input_file=train_path,
         seq_length=max_seq_length,
         is_training=True,
-        drop_remainder=True)
+        drop_remainder=True,
+        num_labels=num_labels)
 
     print(f'Beginning Training!')
 
@@ -303,7 +304,8 @@ def train_and_evaluate(train_examples, eval_examples, max_seq_length, estimator,
         input_file=eval_path,
         seq_length=max_seq_length,
         is_training=False,
-        drop_remainder=False)
+        drop_remainder=False,
+        num_labels=num_labels)
 
     train_spec = tf.estimator.TrainSpec(
         train_input_fn,
