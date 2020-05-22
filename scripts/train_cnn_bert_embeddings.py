@@ -7,13 +7,17 @@ from sklearn.metrics import precision_score, recall_score, f1_score, classificat
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import EarlyStopping
 
-from TextCNN_modified.bert_emdeddings_cnn import TextCNNWithDynamicEmbeddings
+from bert_emdeddings_cnn import TextCNNWithDynamicEmbeddings
 
 
 def str_to_embedding(vector_str):
-    vector_values = [float(value) for value in vector_str]
+    for value in vector_str.split(','):
+        try:
+            float(value)
+        except Exception:
+            print(repr(value))
+    vector_values = [float(value) for value in vector_str.split(',')]
     vector_values = np.array(vector_values)
-    assert type(vector_values) == np.float64
     return vector_values
 
 
@@ -39,17 +43,17 @@ def main():
         num_lines = 0
         for line in inp_file:
             num_lines += 1
-            vector_strings = line.split('\t')
+            vector_strings = line.strip().split('\t')
             num_vectors = len(vector_strings)
             if num_vectors > max_tweet_length:
                 max_tweet_length = num_vectors
-
+    print('maxlen', max_tweet_length)
     data_numpy_matrix = np.zeros(shape=(num_lines, max_tweet_length, embedding_size), dtype=np.float64)
 
     with codecs.open(transformed_texts_path, 'r', encoding='ascii') as inp_file:
         for line_id, line in enumerate(inp_file):
             tweet_embeddings = np.zeros(shape=(max_tweet_length, embedding_size), dtype=np.float64)
-            vector_strings = line.split('\t')
+            vector_strings = line.strip().split('\t')
             for token_id, vector_str in enumerate(vector_strings):
                 numpy_token_embedding = str_to_embedding(vector_str)
                 tweet_embeddings[token_id] = numpy_token_embedding
