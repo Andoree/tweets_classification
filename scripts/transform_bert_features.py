@@ -9,24 +9,21 @@ def main():
     output_file_path = "tweets_tokens_embeddings.txt"
     with codecs.open(bert_features_json_path, "r", encoding="utf-8") as inp, \
             codecs.open(output_file_path, "w+", encoding="ascii") as output:
-        for i in range(2):
-            print('----' * 10)
-            line = inp.readline()
+        for i, line in enumerate(inp):
+            print(i)
             json_doc = json.loads(line)
             for k, v in json_doc.items():
                 if k == "linex_index":
-                    print('linex_index', v)
+                    pass
                 # Processing of individual token
                 elif k == "features":
                     num_tokens = len(v)
-                    print('num_tokens', num_tokens)
                     for elem in v:
                         token = elem['token']
                         if token not in IGNORED_TOKENS:
                             token_embedding = np.zeros(shape=768, dtype=np.float32)
                             layers = elem['layers']
                             num_layers = len(layers)
-                            print('num_layers', num_layers)
                             for layer in layers:
                                 # single layer: dict with keys[index, embedding]
                                 layer_embedding = layer['values']

@@ -8,7 +8,8 @@ def main():
 
     covid_tweets_df.text = covid_tweets_df.text.apply(lambda x: x.replace("\n", " ").replace("\t", " "))
     covid_tweets_df.drop(['date', 'resource'], axis=1, inplace=True)
-    covid_tweets_df.to_csv(output_path, index=False, sep="\t", quoting=3)
+    covid_tweets_df = covid_tweets_df[['text','id']]
+    covid_tweets_df.to_csv(output_path, index=False,)
 
 
 

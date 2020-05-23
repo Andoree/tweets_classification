@@ -36,7 +36,7 @@ def main():
     test_size = 0.2
     dev_size = 0.1
     batch_size = 32
-    num_epochs = 10
+    num_epochs = 3
     decision_threshold = 0.5
 
     with codecs.open(transformed_texts_path, 'r', encoding='ascii') as inp_file:
@@ -60,14 +60,19 @@ def main():
             data_numpy_matrix[line_id] = tweet_embeddings
 
     y_s = pd.read_csv(labels_file, sep="\t", names=['class', 'text'], quoting=3)['class']
+    print(y_s.shape)
+    print(data_numpy_matrix.shape)
     X_train, X_test, y_train, y_test = train_test_split(
         data_numpy_matrix, y_s, test_size=test_size, random_state=42)
+    del data_numpy_matrix
     X_train, X_dev, y_train, y_dev = train_test_split(
         X_train, y_train, test_size=dev_size, random_state=42)
     model = TextCNNWithDynamicEmbeddings(max_tweet_length)
-
+    y_train = y_train.values
+    y_dev = y_dev.values
+    y_test = y_test.values
     model.compile('adam', 'binary_crossentropy', metrics=['accuracy'],)
-    early_stopping = EarlyStopping(monitor='val_accuracy', patience=3, mode='max', restore_best_weights=True)
+    early_stopping = EarlyStopping(monitor='val_accuracy', patience=3, mode='max',)
     model.fit(X_train, y_train,
               batch_size=batch_size,
               epochs=num_epochs,
