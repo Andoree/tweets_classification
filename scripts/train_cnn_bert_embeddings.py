@@ -4,11 +4,9 @@ import os
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import precision_score, recall_score, f1_score, classification_report
-from sklearn.model_selection import train_test_split
-from tensorflow.keras.callbacks import EarlyStopping
-
 from bert_emdeddings_cnn import TextCNNWithDynamicEmbeddings
+from sklearn.metrics import precision_score, recall_score, f1_score, classification_report
+from tensorflow.keras.callbacks import EarlyStopping
 
 
 def str_to_embedding(vector_str):
@@ -26,7 +24,10 @@ def main():
     config = configparser.ConfigParser()
     config.read('config_train_cnn_bert_emb.ini')
     tweet_tokens_embs_path = config.get('INPUT', 'TWEET_TOKENS_EMBS_PATH')
-    labels_file = r'../new_corpora/all_tweets_ruen/all_tweets_ruen.tsv'
+    test_start_line_id = config.getint('INPUT', 'TEST_START_LINE_ID')
+    dev_start_line_id = config.getint('INPUT', 'DEV_START_LINE_ID')
+    negative_examples_ratio = config.getint('INPUT', 'NEGATIVE_EXAMPLES_RATIO')
+    labels_filepath = config.get('INPUT', 'LABELS_FILE')
     results_dir = config.get('PARAMETERS', 'RESULTS_DIR')
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
@@ -62,20 +63,32 @@ def main():
                 tweet_embeddings[token_id] = numpy_token_embedding
             data_numpy_matrix[line_id] = tweet_embeddings
 
-    y_s = pd.read_csv(labels_file, sep="\t", names=['class', 'text'], quoting=3)['class']
+    y_s = pd.read_csv(labels_filepath, sep="\t", names=['class', 'text'], quoting=3)['class'].values
     print(y_s.shape)
     print(data_numpy_matrix.shape)
-    X_train, X_test, y_train, y_test = train_test_split(
-        data_numpy_matrix, y_s, test_size=test_size, random_state=42)
+    X_train = data_numpy_matrix[:test_start_line_id]
+    print('X train', X_train)
+    X_test = data_numpy_matrix[test_start_line_id:dev_start_line_id]
+    print('X dev', X_test)
+    X_dev = data_numpy_matrix[dev_start_line_id:]
+    print('X dev', X_dev)
     del data_numpy_matrix
-    X_train, X_dev, y_train, y_dev = train_test_split(
-        X_train, y_train, test_size=dev_size, random_state=42)
+    y_train = y_s[:test_start_line_id]
+    y_test = y_s[test_start_line_id:dev_start_line_id]
+    y_dev = y_s[dev_start_line_id:]
+    print('y train', y_train)
+    print('y test', y_test)
+    print('y dev', y_dev)
+
+    # X_train, X_test, y_train, y_test = train_test_split(
+    #     data_numpy_matrix, y_s, test_size=test_size, random_state=42)
+    # del data_numpy_matrix
+    # X_train, X_dev, y_train, y_dev = train_test_split(
+    #     X_train, y_train, test_size=dev_size, random_state=42)
+
     model = TextCNNWithDynamicEmbeddings(max_tweet_length)
-    y_train = y_train.values
-    y_dev = y_dev.values
-    y_test = y_test.values
-    model.compile('adam', 'binary_crossentropy', metrics=['accuracy'],)
-    early_stopping = EarlyStopping(monitor='val_accuracy', patience=3, mode='max',)
+    model.compile('adam', 'binary_crossentropy', metrics=['accuracy'], )
+    early_stopping = EarlyStopping(monitor='val_accuracy', patience=3, mode='max', )
     model.fit(X_train, y_train,
               batch_size=batch_size,
               epochs=num_epochs,
