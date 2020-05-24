@@ -63,19 +63,35 @@ def main():
                 tweet_embeddings[token_id] = numpy_token_embedding
             data_numpy_matrix[line_id] = tweet_embeddings
 
-    y_s = pd.read_csv(labels_filepath, sep="\t", names=['class', 'text'], quoting=3)['class'].values
-    print(y_s.shape)
+    y_s_df = pd.read_csv(labels_filepath, sep="\t", names=['class', 'text'], quoting=3)['class'].values
+
+    num_examples = y_s_df.shape[0]
+    row_ids = [i for i in range(num_examples)]
+    y_s_df['row_id'] = row_ids
+    train_y_s_df = y_s_df[:test_start_line_id, :]
+    positive_train_y_s_df = train_y_s_df[train_y_s_df['class'] == 1]
+    negative_train_y_s_df = train_y_s_df[train_y_s_df['class'] == 0]
+    num_positive_examples = positive_train_y_s_df.shape[0]
+    if negative_examples_ratio != -1:
+        num_negative_examples = num_positive_examples * negative_examples_ratio
+        negative_train_y_s_df = negative_train_y_s_df.sample(num_negative_examples)
+    class_balanced_train_df = pd.concat([positive_train_y_s_df, negative_train_y_s_df]).sample(frac=1)
+    y_train = class_balanced_train_df['class'].values
+
+    X_train_row_ids = class_balanced_train_df['row_id'].values
+    X_train = data_numpy_matrix[X_train_row_ids]
+    print(y_s_df.shape)
     print(data_numpy_matrix.shape)
-    X_train = data_numpy_matrix[:test_start_line_id]
+    # X_train = data_numpy_matrix[:test_start_line_id]
     print('X train', X_train.shape)
     X_test = data_numpy_matrix[test_start_line_id:dev_start_line_id]
     print('X dev', X_test.shape)
     X_dev = data_numpy_matrix[dev_start_line_id:]
     print('X dev', X_dev.shape)
     del data_numpy_matrix
-    y_train = y_s[:test_start_line_id]
-    y_test = y_s[test_start_line_id:dev_start_line_id]
-    y_dev = y_s[dev_start_line_id:]
+    # y_train = y_s_df[:test_start_line_id]
+    y_test = y_s_df[test_start_line_id:dev_start_line_id]
+    y_dev = y_s_df[dev_start_line_id:]
     print('y train', y_train.shape)
     print('y test', y_test.shape)
     print('y dev', y_dev.shape)
