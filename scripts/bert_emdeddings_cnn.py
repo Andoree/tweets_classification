@@ -25,8 +25,8 @@ class TextCNNWithDynamicEmbeddings(Model):
         self.classifier = Dense(self.class_num, activation=self.last_activation)
 
     def call(self, inputs):
-        if len(inputs.get_shape()) != 2:
-            raise ValueError('The rank of inputs of TextCNN must be 2, but now is %d' % len(inputs.get_shape()))
+        #if len(inputs.get_shape()) != 2:
+        #    raise ValueError('The rank of inputs of TextCNN must be 2, but now is %d' % len(inputs.get_shape()))
         if inputs.get_shape()[1] != self.maxlen:
             raise ValueError(
                 'The maxlen of inputs of TextCNN must be %d, but now is %d' % (self.maxlen, inputs.get_shape()[1]))

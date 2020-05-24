@@ -8,13 +8,17 @@ from sklearn.metrics import precision_score, recall_score, f1_score, classificat
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.callbacks import EarlyStopping
 
-from TextCNN_modified.bert_emdeddings_cnn import TextCNNWithDynamicEmbeddings
+from bert_emdeddings_cnn import TextCNNWithDynamicEmbeddings
 
 
 def str_to_embedding(vector_str):
-    vector_values = [float(value) for value in vector_str]
+    for value in vector_str.split(','):
+        try:
+            float(value)
+        except Exception:
+            print(repr(value))
+    vector_values = [float(value) for value in vector_str.split(',')]
     vector_values = np.array(vector_values)
-    assert type(vector_values) == np.float64
     return vector_values
 
 
@@ -42,31 +46,36 @@ def main():
         num_lines = 0
         for line in inp_file:
             num_lines += 1
-            vector_strings = line.split('\t')
+            vector_strings = line.strip().split('\t')
             num_vectors = len(vector_strings)
             if num_vectors > max_tweet_length:
                 max_tweet_length = num_vectors
-
+    print('maxlen', max_tweet_length)
     data_numpy_matrix = np.zeros(shape=(num_lines, max_tweet_length, embedding_size), dtype=np.float64)
 
     with codecs.open(tweet_tokens_embs_path, 'r', encoding='ascii') as inp_file:
         for line_id, line in enumerate(inp_file):
             tweet_embeddings = np.zeros(shape=(max_tweet_length, embedding_size), dtype=np.float64)
-            vector_strings = line.split('\t')
+            vector_strings = line.strip().split('\t')
             for token_id, vector_str in enumerate(vector_strings):
                 numpy_token_embedding = str_to_embedding(vector_str)
                 tweet_embeddings[token_id] = numpy_token_embedding
             data_numpy_matrix[line_id] = tweet_embeddings
 
     y_s = pd.read_csv(labels_file, sep="\t", names=['class', 'text'], quoting=3)['class']
+    print(y_s.shape)
+    print(data_numpy_matrix.shape)
     X_train, X_test, y_train, y_test = train_test_split(
         data_numpy_matrix, y_s, test_size=test_size, random_state=42)
+    del data_numpy_matrix
     X_train, X_dev, y_train, y_dev = train_test_split(
         X_train, y_train, test_size=dev_size, random_state=42)
     model = TextCNNWithDynamicEmbeddings(max_tweet_length)
-
+    y_train = y_train.values
+    y_dev = y_dev.values
+    y_test = y_test.values
     model.compile('adam', 'binary_crossentropy', metrics=['accuracy'],)
-    early_stopping = EarlyStopping(monitor='val_accuracy', patience=3, mode='max', restore_best_weights=True)
+    early_stopping = EarlyStopping(monitor='val_accuracy', patience=3, mode='max',)
     model.fit(X_train, y_train,
               batch_size=batch_size,
               epochs=num_epochs,
