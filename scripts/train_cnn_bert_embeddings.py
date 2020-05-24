@@ -1,4 +1,5 @@
 import codecs
+import configparser
 import os
 
 import numpy as np
@@ -18,24 +19,26 @@ def str_to_embedding(vector_str):
 
 
 def main():
-    transformed_texts_path = r'../tweets_embeddings/tweets_tokens_embeddings.txt'
+    config = configparser.ConfigParser()
+    config.read('config_train_cnn_bert_emb.ini')
+    tweet_tokens_embs_path = config.get('INPUT', 'TWEET_TOKENS_EMBS_PATH')
     labels_file = r'../new_corpora/all_tweets_ruen/all_tweets_ruen.tsv'
-    results_dir = r'../bert_cnn_results'
+    results_dir = config.get('PARAMETERS', 'RESULTS_DIR')
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
-    test_results_fname = r"test_results.csv"
-    dev_results_fname = r"dev_results.csv"
+    test_results_fname = config.get('PARAMETERS', 'TEST_RESULTS_FNAME')
+    dev_results_fname = config.get('PARAMETERS', 'DEV_RESULTS_FNAME')
     test_results_path = os.path.join(results_dir, test_results_fname)
     dev_results_path = os.path.join(results_dir, dev_results_fname)
-    embedding_size = 768
-    max_tweet_length = -1
+    embedding_size = config.getint('PARAMETERS', 'EMBEDDING_SIZE')
+    max_tweet_length = config.getint('PARAMETERS', 'MAX_TWEET_LENGTH')
     test_size = 0.2
     dev_size = 0.1
-    batch_size = 32
-    num_epochs = 10
-    decision_threshold = 0.5
+    batch_size = config.getint('PARAMETERS', 'BATCH_SIZE')
+    num_epochs = config.getint('PARAMETERS', 'NUM_EPOCHS')
+    decision_threshold = config.getfloat('PARAMETERS', 'DECISION_THRESHOLD')
 
-    with codecs.open(transformed_texts_path, 'r', encoding='ascii') as inp_file:
+    with codecs.open(tweet_tokens_embs_path, 'r', encoding='ascii') as inp_file:
         num_lines = 0
         for line in inp_file:
             num_lines += 1
@@ -46,7 +49,7 @@ def main():
 
     data_numpy_matrix = np.zeros(shape=(num_lines, max_tweet_length, embedding_size), dtype=np.float64)
 
-    with codecs.open(transformed_texts_path, 'r', encoding='ascii') as inp_file:
+    with codecs.open(tweet_tokens_embs_path, 'r', encoding='ascii') as inp_file:
         for line_id, line in enumerate(inp_file):
             tweet_embeddings = np.zeros(shape=(max_tweet_length, embedding_size), dtype=np.float64)
             vector_strings = line.split('\t')
