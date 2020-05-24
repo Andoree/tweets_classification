@@ -28,11 +28,11 @@ def main():
     dev_start_line_id = config.getint('INPUT', 'DEV_START_LINE_ID')
     negative_examples_ratio = config.getint('INPUT', 'NEGATIVE_EXAMPLES_RATIO')
     labels_filepath = config.get('INPUT', 'LABELS_FILE')
-    results_dir = config.get('PARAMETERS', 'RESULTS_DIR')
+    results_dir = config.get('OUTPUT', 'RESULTS_DIR')
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
-    test_results_fname = config.get('PARAMETERS', 'TEST_RESULTS_FNAME')
-    dev_results_fname = config.get('PARAMETERS', 'DEV_RESULTS_FNAME')
+    test_results_fname = config.get('OUTPUT', 'TEST_RESULTS_FNAME')
+    dev_results_fname = config.get('OUTPUT', 'DEV_RESULTS_FNAME')
     test_results_path = os.path.join(results_dir, test_results_fname)
     dev_results_path = os.path.join(results_dir, dev_results_fname)
     embedding_size = config.getint('PARAMETERS', 'EMBEDDING_SIZE')
@@ -67,18 +67,18 @@ def main():
     print(y_s.shape)
     print(data_numpy_matrix.shape)
     X_train = data_numpy_matrix[:test_start_line_id]
-    print('X train', X_train)
+    print('X train', X_train.shape)
     X_test = data_numpy_matrix[test_start_line_id:dev_start_line_id]
-    print('X dev', X_test)
+    print('X dev', X_test.shape)
     X_dev = data_numpy_matrix[dev_start_line_id:]
-    print('X dev', X_dev)
+    print('X dev', X_dev.shape)
     del data_numpy_matrix
     y_train = y_s[:test_start_line_id]
     y_test = y_s[test_start_line_id:dev_start_line_id]
     y_dev = y_s[dev_start_line_id:]
-    print('y train', y_train)
-    print('y test', y_test)
-    print('y dev', y_dev)
+    print('y train', y_train.shape)
+    print('y test', y_test.shape)
+    print('y dev', y_dev.shape)
 
     # X_train, X_test, y_train, y_test = train_test_split(
     #     data_numpy_matrix, y_s, test_size=test_size, random_state=42)

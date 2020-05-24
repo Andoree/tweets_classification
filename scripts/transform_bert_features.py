@@ -5,8 +5,8 @@ IGNORED_TOKENS = ['[SEP]',]
 
 
 def main():
-    bert_features_json_path = r"../../bert/bert_features/rudrec.json"
-    output_file_path = "tweets_tokens_embeddings.txt"
+    bert_features_json_path = r"../../bert/bert_features/eng_tweets_embeddings.json"
+    output_file_path = "../tweets_embeddings/en_tweets_tokens_embs.txt"
     with codecs.open(bert_features_json_path, "r", encoding="utf-8") as inp, \
             codecs.open(output_file_path, "w+", encoding="ascii") as output:
         for i, line in enumerate(inp):
