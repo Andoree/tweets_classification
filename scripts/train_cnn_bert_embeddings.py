@@ -98,7 +98,7 @@ def create_X_y(tweets_embeddings_matrix, tweet_tokens_embs_paths_list, labels_fi
         positive_train_y_s_df = train_y_s_df[train_y_s_df['class'] == 1]
         negative_train_y_s_df = train_y_s_df[train_y_s_df['class'] == 0]
         num_positive_examples = positive_train_y_s_df.shape[0]
-        if negative_examples_ratios_list != -1:
+        if this_language_negative_ratio != -1:
             num_negative_examples = num_positive_examples * this_language_negative_ratio
             negative_train_y_s_df = negative_train_y_s_df.sample(num_negative_examples)
         # 5. Concatenate positive and negative examples
