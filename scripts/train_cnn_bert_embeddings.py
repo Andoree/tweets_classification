@@ -157,7 +157,7 @@ def main():
     max_tweet_length = int(config.get('MAX_TWEET_LENGTH'))
     batch_size = int(config.get('BATCH_SIZE'))
     num_epochs = int(config.get('NUM_EPOCHS'))
-    decision_threshold = float(config.get('PARAMETERS', 'DECISION_THRESHOLD'))
+    decision_threshold = float(config.get('DECISION_THRESHOLD'))
 
     max_tweet_length_, line_numbers = get_tweets_maxlen_n_lines(tweet_tokens_embs_paths_list)
     max_tweet_length = min(max_tweet_length, max_tweet_length_) \
