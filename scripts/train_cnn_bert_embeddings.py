@@ -183,6 +183,10 @@ def main():
     y_dev = data_dictionary['y_dev']
     X_test_list = data_dictionary['X_test']
     true_y_test_list = data_dictionary['y_test']
+    print('X train', X_train.shape)
+    print('y train', y_train.shape)
+    print('X dev', X_dev.shape)
+    print('y dev', y_dev.shape)
 
     model = TextCNNWithDynamicEmbeddings(max_tweet_length)
     model.compile('adam', 'binary_crossentropy', metrics=['accuracy'], )
@@ -204,6 +208,9 @@ def main():
     for i in range(len(tweet_tokens_embs_paths_list)):
         one_lang_X_test = X_test_list[i]
         one_lang_y_test_true = true_y_test_list[i]
+        print('X test', one_lang_X_test.shape)
+        print('y test', one_lang_y_test_true.shape)
+
 
         test_precision, test_recall, test_f_measure, test_y_pred = \
             predict_evaluate(model, X_test=one_lang_X_test, decision_threshold=decision_threshold,
