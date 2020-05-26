@@ -1,5 +1,5 @@
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Embedding, Dense, Conv1D, GlobalMaxPooling1D, Concatenate
+from tensorflow.keras.layers import Embedding, Dense, Conv1D, GlobalMaxPooling1D, Concatenate, Dropout
 
 
 class TextCNNWithDynamicEmbeddings(Model):
@@ -22,6 +22,7 @@ class TextCNNWithDynamicEmbeddings(Model):
         for kernel_size in self.kernel_sizes:
             self.convs.append(Conv1D(128, kernel_size, activation='relu'))
             self.max_poolings.append(GlobalMaxPooling1D())
+        self.dropout = Dropout(0.5)
         self.classifier = Dense(self.class_num, activation=self.last_activation)
 
     def call(self, inputs):
@@ -36,5 +37,6 @@ class TextCNNWithDynamicEmbeddings(Model):
             c = self.max_poolings[i](c)
             convs.append(c)
         x = Concatenate()(convs)
+        x = self.dropout(x)
         output = self.classifier(x)
         return output

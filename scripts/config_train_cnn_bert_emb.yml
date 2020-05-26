@@ -25,7 +25,7 @@ MAX_TWEET_LENGTH: -1
 BATCH_SIZE: 1024
 NUM_EPOCHS: 5
 DECISION_THRESHOLD: 0.5
-
+CONVOLUTION_KERNELS: 3 7
 RESULTS_DIR: ../ruen/bert_cnn_results
 TEST_RESULTS_FNAME: test_res_ruen_full_ep5_1024.csv
 DEV_RESULTS_FNAME: dev_res_ruen_full_ep5_1024.csv

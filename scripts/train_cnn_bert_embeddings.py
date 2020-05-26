@@ -158,6 +158,7 @@ def main():
     batch_size = int(config.get('BATCH_SIZE'))
     num_epochs = int(config.get('NUM_EPOCHS'))
     decision_threshold = float(config.get('DECISION_THRESHOLD'))
+    cnn_kernel_sizes = [int(x) for x in config.get('CONVOLUTION_KERNELS')]
 
     max_tweet_length_, line_numbers = get_tweets_maxlen_n_lines(tweet_tokens_embs_paths_list)
     max_tweet_length = min(max_tweet_length, max_tweet_length_) \
@@ -188,7 +189,7 @@ def main():
     print('X dev', X_dev.shape)
     print('y dev', y_dev.shape)
 
-    model = TextCNNWithDynamicEmbeddings(max_tweet_length)
+    model = TextCNNWithDynamicEmbeddings(max_tweet_length, kernel_sizes=cnn_kernel_sizes)
     model.compile('adam', 'binary_crossentropy', metrics=['accuracy'], )
     early_stopping = EarlyStopping(monitor='val_accuracy', patience=3, mode='max', )
     model.fit(X_train, y_train,
@@ -210,7 +211,6 @@ def main():
         one_lang_y_test_true = true_y_test_list[i]
         print('X test', one_lang_X_test.shape)
         print('y test', one_lang_y_test_true.shape)
-
 
         test_precision, test_recall, test_f_measure, test_y_pred = \
             predict_evaluate(model, X_test=one_lang_X_test, decision_threshold=decision_threshold,
