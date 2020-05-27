@@ -37,6 +37,5 @@ class TextCNNWithDynamicEmbeddings(Model):
             c = self.max_poolings[i](c)
             convs.append(c)
         x = Concatenate()(convs)
-        x = self.dropout(x)
         output = self.classifier(x)
         return output
