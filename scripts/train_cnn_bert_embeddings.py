@@ -138,7 +138,7 @@ def predict_evaluate(model, X_test, decision_threshold, y_true):
 
 
 def main():
-    with open('config_train_cnn_bert_emb.ini', 'r') as inp:
+    with open('config_train_cnn_bert_emb.yml', 'r') as inp:
         config = yaml.safe_load(inp)
 
     tweet_tokens_embs_paths_list = config.get('TWEET_TOKENS_EMBS_PATHS')
@@ -158,7 +158,7 @@ def main():
     batch_size = int(config.get('BATCH_SIZE'))
     num_epochs = int(config.get('NUM_EPOCHS'))
     decision_threshold = float(config.get('DECISION_THRESHOLD'))
-    cnn_kernel_sizes = [int(x) for x in config.get('CONVOLUTION_KERNELS')]
+    cnn_kernel_sizes = [int(x) for x in config.get('CONVOLUTION_KERNELS').split()]
 
     max_tweet_length_, line_numbers = get_tweets_maxlen_n_lines(tweet_tokens_embs_paths_list)
     max_tweet_length = min(max_tweet_length, max_tweet_length_) \
