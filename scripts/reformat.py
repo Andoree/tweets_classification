@@ -10,10 +10,10 @@ COLUMN_ORDER = ["class", "tweet"]
 def main():
     training_path = r"../corpora/not_split_all_ru_tweets/task2_ru_training.tsv"
     val_path = r"../corpora/not_split_all_ru_tweets/task2_ru_validation.tsv"
-    out_dir = r"../new_corpora/corpus_ru_full/"
-    negative_proportion = -1
-
-    # training_path = r"corpus_full_eng/train.tsv"
+    out_dir = r"../competition_data/adr_reviews/"
+    negative_proportion = 5
+    output_format = 'csv'
+    # training_path = r"corpus_full_eng/all_tweets_ruen.tsv"
     # val_path = r"corpus_full_eng/test.tsv"
     # out_dir = r"english_tweets_normalized"
     if not os.path.exists(out_dir):
@@ -38,12 +38,20 @@ def main():
     else:
         class_normalized_train_df = train_df.sample(frac=1)
 
-    out_train_path = os.path.join(out_dir, "train.tsv")
-    out_test_path = os.path.join(out_dir, "test.tsv")
-    out_dev_path = os.path.join(out_dir, "dev.tsv")
-    class_normalized_train_df.to_csv(out_train_path, sep="\t", encoding="utf-8", quoting=3, index=False, quotechar=None)
-    test_df.to_csv(out_test_path, sep="\t", encoding="utf-8", index=False, quoting=3, quotechar=None)
-    dev_df.to_csv(out_dev_path, sep="\t", encoding="utf-8", index=False, quoting=3,quotechar=None)
+    out_train_path = os.path.join(out_dir, f"train.{output_format}")
+    out_test_path = os.path.join(out_dir, f"test.{output_format}")
+    out_dev_path = os.path.join(out_dir, f"dev.{output_format}")
+
+    if output_format == 'tsv':
+        class_normalized_train_df.to_csv(out_train_path, sep="\t", encoding="utf-8", quoting=3, index=False,
+                                         quotechar=None)
+        test_df.to_csv(out_test_path, sep="\t", encoding="utf-8", index=False, quoting=3, quotechar=None)
+        dev_df.to_csv(out_dev_path, sep="\t", encoding="utf-8", index=False, quoting=3, quotechar=None)
+    elif output_format == 'csv':
+        test_df = test_df[['tweet', 'class']]
+        class_normalized_train_df.to_csv(out_train_path, encoding="utf-8", index=False, )
+        test_df.to_csv(out_test_path, encoding="utf-8", index=False, )
+        dev_df.to_csv(out_dev_path, encoding="utf-8", index=False, )
 
 
 if __name__ == '__main__':
